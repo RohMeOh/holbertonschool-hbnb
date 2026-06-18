@@ -1,4 +1,3 @@
-cat > part2/run.py << 'EOF'
 #!/usr/bin/python3
 """Entry point for running the HBnB Flask application."""
 
@@ -8,4 +7,3 @@ app = create_app()
 
 if __name__ == '__main__':
     app.run(debug=True)
-EOF

@@ -1,4 +1,3 @@
-cat > part2/app/services/facade.py << 'EOF'
 #!/usr/bin/python3
 """Facade layer for the HBnB application."""
 
@@ -28,4 +27,3 @@ class HBnBFacade:
         Logic will be implemented in a later task.
         """
         pass
-EOF

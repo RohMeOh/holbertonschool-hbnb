@@ -1,4 +1,3 @@
-cat > part2/app/persistence/repository.py << 'EOF'
 #!/usr/bin/python3
 """Repository interface and in-memory repository implementation."""
 
@@ -78,4 +77,3 @@ class InMemoryRepository(Repository):
             ),
             None
         )
-EOF

@@ -1,60 +1,40 @@
-cat > part2/README.md << 'EOF'
 # HBnB - Part 2
 
-This project sets up the initial structure for the HBnB application.
+This project implements the initial structure and core business logic for the HBnB application.
+
+HBnB is organized using a modular architecture with clear separation between the Presentation, Business Logic, Service, and Persistence layers.
 
 ## Project Structure
 
 ```text
-app/
-├── api/
-│   └── v1/
-├── models/
-├── services/
-└── persistence/
-```
-
-## Directories
-
-- `app/`: Contains the core application code.
-- `app/api/`: Contains the API layer.
-- `app/api/v1/`: Contains version 1 of the API endpoints.
-- `app/models/`: Contains the business logic models.
-- `app/services/`: Contains the Facade layer.
-- `app/persistence/`: Contains the in-memory repository.
-- `run.py`: Entry point for running the Flask application.
-- `config.py`: Contains configuration classes.
-- `requirements.txt`: Contains project dependencies.
-
-## Layers
-
-The project is organized into three main layers:
-
-1. Presentation Layer: API endpoints.
-2. Business Logic Layer: Models and application rules.
-3. Persistence Layer: Data storage.
-
-The Facade pattern is used in the service layer to simplify communication between these layers.
-
-## Installation
-
-Install dependencies with:
-
-```bash
-pip install -r requirements.txt
-```
-
-## Running the Application
-
-Run the Flask application with:
-
-```bash
-python3 run.py
-```
-
-The API documentation will be available at:
-
-```text
-/api/v1/
-```
-EOF
+part2/
+├── app/
+│   ├── __init__.py
+│   ├── api/
+│   │   ├── __init__.py
+│   │   └── v1/
+│   │       ├── __init__.py
+│   │       ├── users.py
+│   │       ├── places.py
+│   │       ├── reviews.py
+│   │       └── amenities.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── base_model.py
+│   │   ├── user.py
+│   │   ├── place.py
+│   │   ├── review.py
+│   │   └── amenity.py
+│   ├── services/
+│   │   ├── __init__.py
+│   │   └── facade.py
+│   └── persistence/
+│       ├── __init__.py
+│       └── repository.py
+├── config.py
+├── requirements.txt
+├── run.py
+├── test_models.py
+└── README.md
+:wq
+:q!

@@ -1,4 +1,3 @@
-cat > part2/config.py << 'EOF'
 #!/usr/bin/python3
 """Configuration settings for the HBnB application."""
 
@@ -22,4 +21,3 @@ config = {
     'development': DevelopmentConfig,
     'default': DevelopmentConfig
 }
-EOF

@@ -1,4 +1,2 @@
-cat > part2/requirements.txt << 'EOF'
 flask
 flask-restx
-EOF
