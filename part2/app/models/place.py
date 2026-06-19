@@ -9,7 +9,15 @@ from app.models.amenity import Amenity
 class Place(BaseModel):
     """Place class for the HBnB application."""
 
-    def __init__(self, title, description, price, latitude, longitude, owner):
+    def __init__(
+        self,
+        title,
+        description,
+        price,
+        latitude,
+        longitude,
+        owner
+    ):
         """Initialize a Place instance."""
         super().__init__()
         self.reviews = []
@@ -61,8 +69,8 @@ class Place(BaseModel):
         """Set and validate the place price."""
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             raise TypeError("price must be a number")
-        if value <= 0:
-            raise ValueError("price must be positive")
+        if value < 0:
+            raise ValueError("price must be non-negative")
         self._price = float(value)
 
     @property
