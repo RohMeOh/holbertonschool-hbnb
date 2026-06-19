@@ -69,8 +69,8 @@ class Place(BaseModel):
         """Set and validate the place price."""
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             raise TypeError("price must be a number")
-        if value < 0:
-            raise ValueError("price must be non-negative")
+        if value <= 0:
+            raise ValueError("price must be positive")
         self._price = float(value)
 
     @property
