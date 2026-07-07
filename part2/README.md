@@ -36,5 +36,3 @@ part2/
 ├── run.py
 ├── test_models.py
 └── README.md
-:wq
-:q!
