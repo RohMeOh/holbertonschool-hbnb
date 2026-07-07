@@ -2,10 +2,14 @@
 """Review API endpoints."""
 
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from app.services import facade
 
 api = Namespace("reviews", description="Review operations")
+
+def is_admin():
+    """Return True if current JWT belongs to an admin."""
+    return get_jwt().get("is_admin", False)
 
 review_model = api.model("Review", {
     "text": fields.String(required=True, description="Text of the review"),
@@ -112,7 +116,7 @@ class ReviewResource(Resource):
         if not review:
             return {"error": "Review not found"}, 404
 
-        if review.user.id != current_user:
+        if not is_admin() and review.user.id != current_user:
             return {"error": "Unauthorized action"}, 403
 
         review_data.pop("user_id", None)
@@ -137,7 +141,7 @@ class ReviewResource(Resource):
         if not review:
             return {"error": "Review not found"}, 404
 
-        if review.user.id != current_user:
+        if not is_admin() and review.user.id != current_user:
             return {"error": "Unauthorized action"}, 403
 
         deleted = facade.delete_review(review_id)
