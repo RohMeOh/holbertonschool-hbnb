@@ -77,3 +77,49 @@ class InMemoryRepository(Repository):
             ),
             None
         )
+
+
+class SQLAlchemyRepository(Repository):
+    """SQLAlchemy repository for database persistence."""
+
+    def __init__(self, model):
+        """Initialize repository with a model class."""
+        self.model = model
+
+    def add(self, obj):
+        """Add an object to the database."""
+        from app import db
+
+        db.session.add(obj)
+        db.session.commit()
+
+    def get(self, obj_id):
+        """Return an object by ID, or None if not found."""
+        return self.model.query.get(obj_id)
+
+    def get_all(self):
+        """Return all objects from the database."""
+        return self.model.query.all()
+
+    def update(self, obj_id, data):
+        """Update an object using the provided dictionary."""
+        from app import db
+
+        obj = self.get(obj_id)
+        if obj:
+            for key, value in data.items():
+                setattr(obj, key, value)
+            db.session.commit()
+
+    def delete(self, obj_id):
+        """Delete an object from the database."""
+        from app import db
+
+        obj = self.get(obj_id)
+        if obj:
+            db.session.delete(obj)
+            db.session.commit()
+
+    def get_by_attribute(self, attr_name, attr_value):
+        """Return the first object matching an attribute value."""
+        return self.model.query.filter_by(**{attr_name: attr_value}).first()
