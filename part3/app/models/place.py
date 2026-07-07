@@ -4,8 +4,7 @@
 from sqlalchemy.orm import validates
 from app import db
 from app.models.base_model import BaseModel
-from app.models.user import User
-from app.models.amenity import Amenity
+from app.models.association_tables import place_amenity
 
 
 class Place(BaseModel):
@@ -18,6 +17,21 @@ class Place(BaseModel):
     price = db.Column(db.Float, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+
+    reviews = db.relationship(
+        "Review",
+        backref="place",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+    amenities = db.relationship(
+        "Amenity",
+        secondary=place_amenity,
+        lazy="subquery",
+        backref=db.backref("places", lazy=True)
+    )
 
     def __init__(
         self,
@@ -29,16 +43,12 @@ class Place(BaseModel):
         owner
     ):
         """Initialize a Place instance."""
-        self.reviews = []
-        self.amenities = []
         self.title = title
         self.description = description
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
         self.owner = owner
-
-        owner.add_place(self)
 
     @validates("title")
     def validate_title(self, key, value):
@@ -85,37 +95,14 @@ class Place(BaseModel):
             raise ValueError("longitude must be between -180.0 and 180.0")
         return float(value)
 
-    @property
-    def owner(self):
-        """Get the place owner."""
-        return self._owner
-
-    @owner.setter
-    def owner(self, value):
-        """Set and validate the place owner."""
-        if not isinstance(value, User):
-            raise TypeError("owner must be a User instance")
-        self._owner = value
-
     def add_review(self, review):
         """Add a review to the place."""
-        from app.models.review import Review
-
-        if not isinstance(review, Review):
-            raise TypeError("review must be a Review instance")
-
-        if review.place is not self:
-            raise ValueError("review must belong to this place")
-
         if review not in self.reviews:
             self.reviews.append(review)
             self.save()
 
     def add_amenity(self, amenity):
         """Add an amenity to the place."""
-        if not isinstance(amenity, Amenity):
-            raise TypeError("amenity must be an Amenity instance")
-
         if amenity not in self.amenities:
             self.amenities.append(amenity)
             self.save()

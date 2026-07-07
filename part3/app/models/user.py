@@ -18,6 +18,20 @@ class User(BaseModel):
     password = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
 
+    places = db.relationship(
+        "Place",
+        backref="owner",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+    reviews = db.relationship(
+        "Review",
+        backref="user",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
     def __init__(
         self,
         first_name,
@@ -27,7 +41,6 @@ class User(BaseModel):
         is_admin=False
     ):
         """Initialize a User instance."""
-        self.places = []
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
