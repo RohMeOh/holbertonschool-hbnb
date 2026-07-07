@@ -18,6 +18,10 @@ user_model = api.model("User", {
     "email": fields.String(
         required=True,
         description="Email of the user"
+    ),
+    "password": fields.String(
+        required=True,
+        description="Password of the user"
     )
 })
 
@@ -53,7 +57,10 @@ class UserList(Resource):
         except (TypeError, ValueError) as error:
             return {"error": str(error)}, 400
 
-        return user_to_dict(new_user), 201
+        return {
+            "id": new_user.id,
+            "message": "User successfully created"
+        }, 201
 
     @api.response(200, "List of users retrieved successfully")
     def get(self):

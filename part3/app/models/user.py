@@ -3,6 +3,7 @@
 
 import re
 from app.models.base_model import BaseModel
+from app import bcrypt
 
 
 class User(BaseModel):
@@ -10,13 +11,16 @@ class User(BaseModel):
 
     _used_emails = set()
 
-    def __init__(self, first_name, last_name, email, is_admin=False):
+    def __init__(self, first_name, last_name, email, password=None, is_admin=False):
         """Initialize a User instance."""
         super().__init__()
         self.places = []
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
+        self.password = None
+        if password:
+            self.hash_password(password)
         self.is_admin = is_admin
 
     @property
@@ -86,6 +90,14 @@ class User(BaseModel):
         if not isinstance(value, bool):
             raise TypeError("is_admin must be a boolean")
         self._is_admin = value
+
+    def hash_password(self, password):
+        """Hash the password before storing it."""
+        self.password = bcrypt.generate_password_hash(password).decode("utf-8")
+
+    def verify_password(self, password):
+        """Verify if the provided password matches the stored hash."""
+        return bcrypt.check_password_hash(self.password, password)
 
     def add_place(self, place):
         """Add a place owned by this user."""
