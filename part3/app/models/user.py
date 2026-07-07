@@ -2,63 +2,61 @@
 """User model module."""
 
 import re
+from sqlalchemy.orm import validates
+from app import db, bcrypt
 from app.models.base_model import BaseModel
-from app import bcrypt
 
 
 class User(BaseModel):
     """User class for the HBnB application."""
 
-    _used_emails = set()
+    __tablename__ = "users"
 
-    def __init__(self, first_name, last_name, email, password=None, is_admin=False):
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
+
+    def __init__(
+        self,
+        first_name,
+        last_name,
+        email,
+        password=None,
+        is_admin=False
+    ):
         """Initialize a User instance."""
-        super().__init__()
         self.places = []
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
-        self.password = None
-        if password:
-            self.hash_password(password)
         self.is_admin = is_admin
 
-    @property
-    def first_name(self):
-        """Get the user's first name."""
-        return self._first_name
+        if password:
+            self.hash_password(password)
 
-    @first_name.setter
-    def first_name(self, value):
-        """Set and validate the user's first name."""
+    @validates("first_name")
+    def validate_first_name(self, key, value):
+        """Validate first name."""
         if not isinstance(value, str) or value.strip() == "":
             raise ValueError("first_name is required")
         if len(value) > 50:
             raise ValueError("first_name must be 50 characters or less")
-        self._first_name = value
+        return value
 
-    @property
-    def last_name(self):
-        """Get the user's last name."""
-        return self._last_name
-
-    @last_name.setter
-    def last_name(self, value):
-        """Set and validate the user's last name."""
+    @validates("last_name")
+    def validate_last_name(self, key, value):
+        """Validate last name."""
         if not isinstance(value, str) or value.strip() == "":
             raise ValueError("last_name is required")
         if len(value) > 50:
             raise ValueError("last_name must be 50 characters or less")
-        self._last_name = value
+        return value
 
-    @property
-    def email(self):
-        """Get the user's email."""
-        return self._email
-
-    @email.setter
-    def email(self, value):
-        """Set and validate the user's email."""
+    @validates("email")
+    def validate_email(self, key, value):
+        """Validate email."""
         if not isinstance(value, str) or value.strip() == "":
             raise ValueError("email is required")
 
@@ -68,28 +66,14 @@ class User(BaseModel):
         if not re.match(pattern, email):
             raise ValueError("email must be valid")
 
-        current_email = getattr(self, "_email", None)
+        return email
 
-        if email != current_email and email in User._used_emails:
-            raise ValueError("email must be unique")
-
-        if current_email in User._used_emails:
-            User._used_emails.remove(current_email)
-
-        User._used_emails.add(email)
-        self._email = email
-
-    @property
-    def is_admin(self):
-        """Get admin status."""
-        return self._is_admin
-
-    @is_admin.setter
-    def is_admin(self, value):
-        """Set and validate admin status."""
+    @validates("is_admin")
+    def validate_is_admin(self, key, value):
+        """Validate admin status."""
         if not isinstance(value, bool):
             raise TypeError("is_admin must be a boolean")
-        self._is_admin = value
+        return value
 
     def hash_password(self, password):
         """Hash the password before storing it."""
