@@ -2,11 +2,12 @@
 """User API endpoints."""
 
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 
 api = Namespace("users", description="User operations")
 
-user_model = api.model("User", {
+user_create_model = api.model("UserCreate", {
     "first_name": fields.String(
         required=True,
         description="First name of the user"
@@ -25,9 +26,14 @@ user_model = api.model("User", {
     )
 })
 
+user_update_model = api.model("UserUpdate", {
+    "first_name": fields.String(description="First name of the user"),
+    "last_name": fields.String(description="Last name of the user")
+})
+
 
 def user_to_dict(user):
-    """Convert a User object to a dictionary."""
+    """Convert a User object to a dictionary without password."""
     return {
         "id": user.id,
         "first_name": user.first_name,
@@ -40,7 +46,7 @@ def user_to_dict(user):
 class UserList(Resource):
     """Resource for creating and listing users."""
 
-    @api.expect(user_model, validate=True)
+    @api.expect(user_create_model, validate=True)
     @api.response(201, "User successfully created")
     @api.response(400, "Email already registered")
     @api.response(400, "Invalid input data")
@@ -84,13 +90,22 @@ class UserResource(Resource):
 
         return user_to_dict(user), 200
 
-    @api.expect(user_model, validate=True)
+    @jwt_required()
+    @api.expect(user_update_model, validate=True)
     @api.response(200, "User successfully updated")
     @api.response(400, "Invalid input data")
+    @api.response(403, "Unauthorized action")
     @api.response(404, "User not found")
     def put(self, user_id):
-        """Update user information."""
+        """Update authenticated user's information."""
+        current_user = get_jwt_identity()
         user_data = api.payload
+
+        if current_user != user_id:
+            return {"error": "Unauthorized action"}, 403
+
+        if "email" in user_data or "password" in user_data:
+            return {"error": "You cannot modify email or password"}, 400
 
         user = facade.get_user(user_id)
         if not user:
