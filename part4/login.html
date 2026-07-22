@@ -27,7 +27,12 @@
             <h1>Welcome Back</h1>
             <p>Enter your account information to continue.</p>
 
-            <form class="login-form" action="#" method="post">
+            <form
+                id="login-form"
+                class="login-form"
+                action="#"
+                method="post"
+            >
                 <div class="form-group">
                     <label for="email">Email address</label>
                     <input
@@ -52,7 +57,16 @@
                     >
                 </div>
 
-                <button class="primary-button" type="submit">Login</button>
+                <p
+                    id="login-error"
+                    class="error-message"
+                    role="alert"
+                    aria-live="polite"
+                ></p>
+
+                <button class="primary-button" type="submit">
+                    Login
+                </button>
             </form>
         </section>
     </main>
@@ -60,5 +74,7 @@
     <footer class="site-footer">
         <p>&copy; 2026 HBnB. All rights reserved.</p>
     </footer>
+
+    <script src="scripts.js"></script>
 </body>
 </html>
