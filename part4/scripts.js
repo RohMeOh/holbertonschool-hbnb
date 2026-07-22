@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupLoginForm();
     setupIndexPage();
     setupPlaceDetailsPage();
+    setupAddReviewPage();
 });
 
 /**
@@ -722,6 +723,225 @@ function showPlaceError(messageText) {
     if (message) {
         message.textContent =
             messageText || 'Unable to load place details.';
+        message.classList.add('error-message');
+    }
+}
+
+/* Task 4: Add review page */
+
+/**
+ * Set up the add-review page.
+ *
+ * Unauthenticated users are redirected to index.html.
+ */
+function setupAddReviewPage() {
+    const reviewForm = document.getElementById('review-form');
+
+    if (!reviewForm) {
+        return;
+    }
+
+    const token = checkAuthentication();
+
+    if (!token) {
+        window.location.replace('index.html');
+        return;
+    }
+
+    const placeId = getPlaceIdFromURL();
+    const reviewTextInput =
+        document.getElementById('review-text');
+    const ratingInput =
+        document.getElementById('rating');
+    const submitButton = reviewForm.querySelector(
+        'button[type="submit"]'
+    );
+    const backToPlaceLink =
+        document.getElementById('back-to-place');
+
+    if (!placeId) {
+        showReviewMessage(
+            'No place ID was provided in the URL.',
+            'error'
+        );
+
+        submitButton.disabled = true;
+        return;
+    }
+
+    backToPlaceLink.href =
+        `place.html?id=${encodeURIComponent(placeId)}`;
+
+    loadReviewPlaceName(token, placeId);
+
+    reviewForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const reviewText = reviewTextInput.value.trim();
+        const rating = Number(ratingInput.value);
+
+        showReviewMessage('', '');
+
+        if (!reviewText) {
+            showReviewMessage(
+                'Please enter your review.',
+                'error'
+            );
+            return;
+        }
+
+        if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+            showReviewMessage(
+                'Please select a rating from 1 to 5.',
+                'error'
+            );
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = 'Submitting...';
+
+        try {
+            await submitReview(
+                token,
+                placeId,
+                reviewText,
+                rating
+            );
+
+            showReviewMessage(
+                'Review submitted successfully!',
+                'success'
+            );
+
+            reviewTextInput.value = '';
+            ratingInput.value = '';
+        } catch (error) {
+            console.error('Review submission failed:', error);
+
+            showReviewMessage(
+                error.message || 'Failed to submit review.',
+                'error'
+            );
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Submit Review';
+        }
+    });
+}
+
+/**
+ * Load the selected place name for the review form.
+ *
+ * @param {string} token - JWT access token.
+ * @param {string} placeId - Selected place ID.
+ */
+async function loadReviewPlaceName(token, placeId) {
+    const placeNameInput = document.getElementById('place-name');
+
+    if (!placeNameInput) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/places/${encodeURIComponent(placeId)}`,
+            {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('Unable to load place information.');
+        }
+
+        const data = await response.json();
+        const place = data.place || data;
+
+        placeNameInput.value =
+            place.name ||
+            place.title ||
+            `Place ${placeId}`;
+    } catch (error) {
+        console.error('Unable to load place name:', error);
+        placeNameInput.value = `Place ${placeId}`;
+    }
+}
+
+/**
+ * Submit a review to the API.
+ *
+ * @param {string} token - JWT access token.
+ * @param {string} placeId - Selected place ID.
+ * @param {string} reviewText - Review text.
+ * @param {number} rating - Rating from 1 to 5.
+ * @returns {Promise<Object>} API response data.
+ */
+async function submitReview(
+    token,
+    placeId,
+    reviewText,
+    rating
+) {
+    const response = await fetch(
+        `${API_BASE_URL}/reviews/`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                text: reviewText,
+                rating,
+                place_id: placeId
+            })
+        }
+    );
+
+    let data = {};
+
+    try {
+        data = await response.json();
+    } catch (error) {
+        data = {};
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            data.error ||
+            data.message ||
+            `Failed to submit review: ${response.status}`
+        );
+    }
+
+    return data;
+}
+
+/**
+ * Display review form feedback.
+ *
+ * @param {string} messageText - Message to display.
+ * @param {string} type - "success", "error", or an empty string.
+ */
+function showReviewMessage(messageText, type) {
+    const message = document.getElementById('review-message');
+
+    if (!message) {
+        return;
+    }
+
+    message.textContent = messageText;
+    message.className = 'form-message';
+
+    if (type === 'success') {
+        message.classList.add('success-message');
+    }
+
+    if (type === 'error') {
         message.classList.add('error-message');
     }
 }

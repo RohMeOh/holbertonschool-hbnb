@@ -600,3 +600,36 @@ main {
 #add-review[hidden] {
     display: none;
 }
+
+/* Task 4: Add review form */
+
+.form-message {
+    min-height: 24px;
+    margin: 0;
+    font-weight: 700;
+    text-align: center;
+}
+
+.success-message {
+    color: #067647;
+}
+
+.secondary-button {
+    display: inline-block;
+    padding: 10px 18px;
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    background-color: transparent;
+    color: var(--primary-dark);
+    font-weight: 700;
+    text-align: center;
+}
+
+.secondary-button:hover,
+.secondary-button:focus {
+    background-color: #fff4e8;
+}
+
+#review-form .primary-button {
+    margin: 5px 0 0;
+}

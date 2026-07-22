@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Add a review for an HBnB place.">
+    <meta
+        name="description"
+        content="Add a review for an HBnB place."
+    >
     <title>HBnB - Add Review</title>
     <link rel="icon" href="images/icon.png">
     <link rel="stylesheet" href="styles.css">
@@ -16,34 +19,44 @@
             </a>
 
             <ul class="nav-links">
-                <li><a class="nav-link" href="index.html">Places</a></li>
-                <li><a class="login-button" href="login.html">Login</a></li>
+                <li>
+                    <a class="nav-link" href="index.html">Places</a>
+                </li>
+                <li>
+                    <a
+                        id="login-link"
+                        class="login-button"
+                        href="login.html"
+                    >
+                        Login
+                    </a>
+                </li>
             </ul>
         </nav>
     </header>
 
     <main>
-        <section class="add-review">
+        <section id="add-review" class="add-review">
             <h1>Add a Review</h1>
-            <p>Share your experience at Ocean View House.</p>
+            <p>Share your experience with other guests.</p>
 
-            <form class="form" action="#" method="post">
+            <form id="review-form" class="form">
                 <div class="form-group">
                     <label for="place-name">Place</label>
                     <input
                         id="place-name"
                         name="place-name"
                         type="text"
-                        value="Ocean View House"
+                        value="Loading place..."
                         readonly
                     >
                 </div>
 
                 <div class="form-group">
-                    <label for="review">Your review</label>
+                    <label for="review-text">Your review</label>
                     <textarea
-                        id="review"
-                        name="review"
+                        id="review-text"
+                        name="text"
                         placeholder="Describe your experience..."
                         required
                     ></textarea>
@@ -61,7 +74,24 @@
                     </select>
                 </div>
 
-                <button class="primary-button" type="submit">Submit Review</button>
+                <p
+                    id="review-message"
+                    class="form-message"
+                    role="status"
+                    aria-live="polite"
+                ></p>
+
+                <button class="primary-button" type="submit">
+                    Submit Review
+                </button>
+
+                <a
+                    id="back-to-place"
+                    class="secondary-button"
+                    href="index.html"
+                >
+                    Back to Place
+                </a>
             </form>
         </section>
     </main>
@@ -69,5 +99,7 @@
     <footer class="site-footer">
         <p>&copy; 2026 HBnB. All rights reserved.</p>
     </footer>
+
+    <script src="scripts.js"></script>
 </body>
 </html>
