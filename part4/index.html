@@ -16,8 +16,18 @@
             </a>
 
             <ul class="nav-links">
-                <li><a class="nav-link" href="index.html">Places</a></li>
-                <li><a class="login-button" href="login.html">Login</a></li>
+                <li>
+                    <a class="nav-link" href="index.html">Places</a>
+                </li>
+                <li>
+                    <a
+                        id="login-link"
+                        class="login-button"
+                        href="login.html"
+                    >
+                        Login
+                    </a>
+                </li>
             </ul>
         </nav>
     </header>
@@ -26,58 +36,47 @@
         <section class="hero">
             <div class="hero-content">
                 <h1>Find your next stay</h1>
-                <p>Discover comfortable and memorable places for your next trip.</p>
+                <p>
+                    Discover comfortable and memorable places for your next trip.
+                </p>
             </div>
         </section>
 
         <section class="container places-section">
             <h2>Available Places</h2>
-            <p class="page-description">
-                Explore our selection of places and choose the one that feels right for you.
+
+            <div class="filter-container">
+                <label for="price-filter">Maximum price per night:</label>
+
+                <select id="price-filter" name="price-filter">
+                    <option value="10">$10</option>
+                    <option value="50">$50</option>
+                    <option value="100">$100</option>
+                    <option value="all" selected>All</option>
+                </select>
+            </div>
+
+            <p
+                id="places-message"
+                class="places-message"
+                role="status"
+                aria-live="polite"
+            >
+                Loading places...
             </p>
 
-            <div class="places-grid">
-                <article class="place-card">
-                    <img
-                        class="place-image"
-                        src="images/place1.jpg"
-                        alt="Modern beach house overlooking the ocean"
-                    >
-                    <h3>Ocean View House</h3>
-                    <p class="place-location">Rincón, Puerto Rico</p>
-                    <p class="price">$150 per night</p>
-                    <a class="details-button" href="place.html">View Details</a>
-                </article>
-
-                <article class="place-card">
-                    <img
-                        class="place-image"
-                        src="images/place2.jpg"
-                        alt="Comfortable apartment in a city"
-                    >
-                    <h3>Modern City Apartment</h3>
-                    <p class="place-location">San Juan, Puerto Rico</p>
-                    <p class="price">$110 per night</p>
-                    <a class="details-button" href="place.html">View Details</a>
-                </article>
-
-                <article class="place-card">
-                    <img
-                        class="place-image"
-                        src="images/place3.jpg"
-                        alt="Quiet cabin surrounded by trees"
-                    >
-                    <h3>Quiet Mountain Cabin</h3>
-                    <p class="place-location">Utuado, Puerto Rico</p>
-                    <p class="price">$95 per night</p>
-                    <a class="details-button" href="place.html">View Details</a>
-                </article>
-            </div>
+            <section
+                id="places-list"
+                class="places-grid"
+                aria-label="List of places"
+            ></section>
         </section>
     </main>
 
     <footer class="site-footer">
         <p>&copy; 2026 HBnB. All rights reserved.</p>
     </footer>
+
+    <script src="scripts.js"></script>
 </body>
 </html>

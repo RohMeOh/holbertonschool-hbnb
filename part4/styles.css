@@ -513,3 +513,59 @@ main {
     opacity: 0.65;
     transform: none;
 }
+
+/* Task 2: Dynamic places and price filtering */
+
+.hero {
+    background: linear-gradient(
+        135deg,
+        var(--header-color),
+        #394957
+    );
+}
+
+.filter-container {
+    width: min(400px, 100%);
+    margin: 20px auto 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.filter-container label {
+    font-weight: 700;
+}
+
+.filter-container select {
+    padding: 8px 12px;
+    border: 1px solid #b8c0c8;
+    border-radius: 7px;
+    background-color: #ffffff;
+    cursor: pointer;
+}
+
+.filter-container select:focus {
+    border-color: var(--primary-color);
+    outline: 3px solid rgba(255, 122, 0, 0.18);
+}
+
+.places-message {
+    min-height: 26px;
+    margin: 10px 0;
+    color: var(--muted-color);
+    text-align: center;
+}
+
+.place-description {
+    flex-grow: 1;
+    color: var(--muted-color);
+}
+
+@media (max-width: 500px) {
+    .filter-container {
+        align-items: stretch;
+        flex-direction: column;
+        text-align: center;
+    }
+}
