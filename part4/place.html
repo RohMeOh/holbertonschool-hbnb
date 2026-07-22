@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="View detailed information about an HBnB place.">
-    <title>HBnB - Ocean View House</title>
+    <meta
+        name="description"
+        content="View detailed information about an HBnB place."
+    >
+    <title>HBnB - Place Details</title>
     <link rel="icon" href="images/icon.png">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -16,88 +19,53 @@
             </a>
 
             <ul class="nav-links">
-                <li><a class="nav-link" href="index.html">Places</a></li>
-                <li><a class="login-button" href="login.html">Login</a></li>
+                <li>
+                    <a class="nav-link" href="index.html">Places</a>
+                </li>
+                <li>
+                    <a
+                        id="login-link"
+                        class="login-button"
+                        href="login.html"
+                    >
+                        Login
+                    </a>
+                </li>
             </ul>
         </nav>
     </header>
 
     <main class="container">
-        <article class="place-details">
-            <header class="place-details-header">
-                <h1>Ocean View House</h1>
-                <p>Rincón, Puerto Rico</p>
-            </header>
+        <p
+            id="place-message"
+            class="places-message"
+            role="status"
+            aria-live="polite"
+        >
+            Loading place details...
+        </p>
 
-            <div class="place-gallery">
-                <img
-                    class="place-main-image"
-                    src="images/place1.jpg"
-                    alt="Ocean View House with a view of the sea"
-                >
-            </div>
+        <section
+            id="place-details"
+            class="place-details"
+            aria-label="Place details"
+        ></section>
 
-            <section class="place-info">
-                <h2>About this place</h2>
-
-                <div class="place-summary">
-                    <p><strong>Host:</strong> Maria Rivera</p>
-                    <p><strong>Price:</strong> $150 per night</p>
-                    <p><strong>Guests:</strong> Up to 6</p>
-                    <p><strong>Bedrooms:</strong> 3</p>
-                </div>
-
-                <p>
-                    Enjoy a peaceful stay in this spacious oceanfront house.
-                    The property includes comfortable bedrooms, a full kitchen,
-                    a private terrace, and beautiful sunset views.
-                </p>
-
-                <h2>Amenities</h2>
-                <ul class="amenities-list">
-                    <li>Wi-Fi</li>
-                    <li>Air conditioning</li>
-                    <li>Full kitchen</li>
-                    <li>Free parking</li>
-                    <li>Ocean view</li>
-                    <li>Washer and dryer</li>
-                </ul>
-            </section>
-        </article>
-
-        <section class="reviews-section" aria-labelledby="reviews-heading">
-            <h2 id="reviews-heading">Guest Reviews</h2>
-
-            <article class="review-card">
-                <header class="review-card-header">
-                    <h3>Daniel Ortiz</h3>
-                    <span class="review-rating">Rating: 5/5</span>
-                </header>
-                <p>
-                    The house was beautiful, clean, and very close to the beach.
-                    The sunset from the terrace was amazing.
-                </p>
-            </article>
-
-            <article class="review-card">
-                <header class="review-card-header">
-                    <h3>Laura Santiago</h3>
-                    <span class="review-rating">Rating: 4/5</span>
-                </header>
-                <p>
-                    A comfortable place with plenty of room. The host was helpful
-                    and answered our questions quickly.
-                </p>
-            </article>
-
-            <div class="add-review-link">
-                <a class="details-button" href="add_review.html">Add a Review</a>
-            </div>
+        <section id="add-review" class="add-review-link" hidden>
+            <a
+                id="add-review-link"
+                class="details-button"
+                href="add_review.html"
+            >
+                Add a Review
+            </a>
         </section>
     </main>
 
     <footer class="site-footer">
         <p>&copy; 2026 HBnB. All rights reserved.</p>
     </footer>
+
+    <script src="scripts.js"></script>
 </body>
 </html>

@@ -3,13 +3,14 @@ const API_BASE_URL = 'http://127.0.0.1:5000/api/v1';
 document.addEventListener('DOMContentLoaded', () => {
     setupLoginForm();
     setupIndexPage();
+    setupPlaceDetailsPage();
 });
 
 /**
  * Return the value of a cookie.
  *
- * @param {string} name - Name of the cookie.
- * @returns {string|null} The cookie value or null.
+ * @param {string} name - Cookie name.
+ * @returns {string|null} Cookie value or null.
  */
 function getCookie(name) {
     const cookiePrefix = `${name}=`;
@@ -29,7 +30,28 @@ function getCookie(name) {
 }
 
 /**
- * Set up the login form from login.html.
+ * Show or hide elements based on authentication.
+ *
+ * @returns {string|null} JWT token or null.
+ */
+function checkAuthentication() {
+    const token = getCookie('token');
+    const loginLink = document.getElementById('login-link');
+    const addReviewSection = document.getElementById('add-review');
+
+    if (loginLink) {
+        loginLink.style.display = token ? 'none' : 'inline-block';
+    }
+
+    if (addReviewSection) {
+        addReviewSection.hidden = !token;
+    }
+
+    return token;
+}
+
+/**
+ * Set up the login form.
  */
 function setupLoginForm() {
     const loginForm = document.getElementById('login-form');
@@ -46,11 +68,12 @@ function setupLoginForm() {
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
+        const email = document
+            .getElementById('email')
+            .value
+            .trim();
 
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
+        const password = document.getElementById('password').value;
 
         errorMessage.textContent = '';
         submitButton.disabled = true;
@@ -111,7 +134,7 @@ function setupLoginForm() {
 }
 
 /**
- * Set up authentication, fetching, and filtering on index.html.
+ * Set up the index page.
  */
 function setupIndexPage() {
     const placesList = document.getElementById('places-list');
@@ -123,39 +146,26 @@ function setupIndexPage() {
     const token = checkAuthentication();
     const priceFilter = document.getElementById('price-filter');
 
-    priceFilter.addEventListener('change', filterPlacesByPrice);
+    if (priceFilter) {
+        priceFilter.addEventListener(
+            'change',
+            filterPlacesByPrice
+        );
+    }
 
     fetchPlaces(token);
 }
 
 /**
- * Show or hide the login link based on authentication.
- *
- * @returns {string|null} JWT token or null.
- */
-function checkAuthentication() {
-    const token = getCookie('token');
-    const loginLink = document.getElementById('login-link');
-
-    if (loginLink) {
-        loginLink.style.display = token ? 'none' : 'inline-block';
-    }
-
-    return token;
-}
-
-/**
  * Fetch all places from the API.
  *
- * @param {string|null} token - JWT access token.
+ * @param {string|null} token - JWT token.
  */
 async function fetchPlaces(token) {
     const message = document.getElementById('places-message');
 
     try {
-        const headers = {
-            'Content-Type': 'application/json'
-        };
+        const headers = {};
 
         if (token) {
             headers.Authorization = `Bearer ${token}`;
@@ -171,7 +181,7 @@ async function fetchPlaces(token) {
 
         if (!response.ok) {
             throw new Error(
-                `API request failed with status ${response.status}`
+                `Unable to fetch places: ${response.status}`
             );
         }
 
@@ -187,16 +197,18 @@ async function fetchPlaces(token) {
 
         displayPlaces(places);
     } catch (error) {
-        console.error('Unable to fetch places:', error);
+        console.error(error);
 
-        message.textContent =
-            'Unable to load places. Make sure the API is running.';
-        message.classList.add('error-message');
+        if (message) {
+            message.textContent =
+                'Unable to load places. Make sure the API is running.';
+            message.classList.add('error-message');
+        }
     }
 }
 
 /**
- * Display places as cards.
+ * Display place cards on index.html.
  *
  * @param {Array} places - Places returned by the API.
  */
@@ -204,14 +216,24 @@ function displayPlaces(places) {
     const placesList = document.getElementById('places-list');
     const message = document.getElementById('places-message');
 
-    placesList.innerHTML = '';
-
-    if (places.length === 0) {
-        message.textContent = 'No places are currently available.';
+    if (!placesList) {
         return;
     }
 
-    message.textContent = '';
+    placesList.innerHTML = '';
+
+    if (places.length === 0) {
+        if (message) {
+            message.textContent =
+                'No places are currently available.';
+        }
+
+        return;
+    }
+
+    if (message) {
+        message.textContent = '';
+    }
 
     places.forEach((place) => {
         const card = document.createElement('article');
@@ -244,7 +266,8 @@ function displayPlaces(places) {
         location.textContent = getPlaceLocation(place);
 
         price.className = 'price';
-        price.textContent = `$${placePrice.toFixed(2)} per night`;
+        price.textContent =
+            `$${placePrice.toFixed(2)} per night`;
 
         detailsButton.className = 'details-button';
         detailsButton.textContent = 'View Details';
@@ -264,10 +287,10 @@ function displayPlaces(places) {
 }
 
 /**
- * Create readable location text from the available place data.
+ * Return readable location information.
  *
- * @param {Object} place - A place returned by the API.
- * @returns {string} Readable location.
+ * @param {Object} place - Place object.
+ * @returns {string} Place location.
  */
 function getPlaceLocation(place) {
     if (place.location) {
@@ -289,7 +312,7 @@ function getPlaceLocation(place) {
 }
 
 /**
- * Filter displayed places using the selected maximum price.
+ * Filter place cards by maximum price.
  */
 function filterPlacesByPrice() {
     const priceFilter = document.getElementById('price-filter');
@@ -318,11 +341,15 @@ function filterPlacesByPrice() {
 }
 
 /**
- * Display a message when no places match the selected price.
+ * Show a message when no place matches the selected price.
  */
 function updateFilterMessage() {
     const message = document.getElementById('places-message');
     const placeCards = document.querySelectorAll('.place-card');
+
+    if (!message) {
+        return;
+    }
 
     const visibleCards = Array.from(placeCards).filter(
         (card) => card.style.display !== 'none'
@@ -333,5 +360,368 @@ function updateFilterMessage() {
             'No places match the selected maximum price.';
     } else if (placeCards.length > 0) {
         message.textContent = '';
+    }
+}
+
+/**
+ * Set up place.html.
+ */
+function setupPlaceDetailsPage() {
+    const placeDetails = document.getElementById('place-details');
+
+    if (!placeDetails) {
+        return;
+    }
+
+    const placeId = getPlaceIdFromURL();
+    const token = checkAuthentication();
+    const addReviewLink = document.getElementById('add-review-link');
+
+    if (!placeId) {
+        showPlaceError('No place ID was provided in the URL.');
+        return;
+    }
+
+    if (addReviewLink) {
+        addReviewLink.href =
+            `add_review.html?id=${encodeURIComponent(placeId)}`;
+    }
+
+    fetchPlaceDetails(token, placeId);
+}
+
+/**
+ * Extract the place ID from the URL.
+ *
+ * Example:
+ * place.html?id=123
+ *
+ * @returns {string|null} Place ID or null.
+ */
+function getPlaceIdFromURL() {
+    const queryParameters = new URLSearchParams(
+        window.location.search
+    );
+
+    return queryParameters.get('id');
+}
+
+/**
+ * Fetch one place from the API.
+ *
+ * @param {string|null} token - JWT token.
+ * @param {string} placeId - Place ID.
+ */
+async function fetchPlaceDetails(token, placeId) {
+    const headers = {};
+
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/places/${encodeURIComponent(placeId)}`,
+            {
+                method: 'GET',
+                headers
+            }
+        );
+
+        let data = {};
+
+        try {
+            data = await response.json();
+        } catch (error) {
+            data = {};
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                data.error ||
+                data.message ||
+                `Unable to load place: ${response.status}`
+            );
+        }
+
+        const place = data.place || data;
+
+        displayPlaceDetails(place);
+    } catch (error) {
+        console.error('Unable to fetch place details:', error);
+        showPlaceError(error.message);
+    }
+}
+
+/**
+ * Display a place's complete information.
+ *
+ * @param {Object} place - Place returned by the API.
+ */
+function displayPlaceDetails(place) {
+    const placeDetails = document.getElementById('place-details');
+    const message = document.getElementById('place-message');
+
+    if (!placeDetails) {
+        return;
+    }
+
+    placeDetails.innerHTML = '';
+
+    if (message) {
+        message.textContent = '';
+    }
+
+    const header = document.createElement('header');
+    const title = document.createElement('h1');
+    const location = document.createElement('p');
+
+    header.className = 'place-details-header';
+
+    title.textContent =
+        place.title ||
+        place.name ||
+        'Untitled Place';
+
+    location.textContent = getPlaceLocation(place);
+
+    header.appendChild(title);
+    header.appendChild(location);
+
+    const placeInfo = document.createElement('section');
+    const aboutHeading = document.createElement('h2');
+    const summary = document.createElement('div');
+    const host = document.createElement('p');
+    const price = document.createElement('p');
+    const description = document.createElement('p');
+
+    placeInfo.className = 'place-info';
+    aboutHeading.textContent = 'About this place';
+    summary.className = 'place-summary';
+
+    host.textContent = `Host: ${getHostName(place)}`;
+    price.textContent =
+        `Price: $${(Number(place.price) || 0).toFixed(2)} per night`;
+
+    description.className = 'place-full-description';
+    description.textContent =
+        place.description ||
+        'No description is available for this place.';
+
+    summary.appendChild(host);
+    summary.appendChild(price);
+
+    placeInfo.appendChild(aboutHeading);
+    placeInfo.appendChild(summary);
+    placeInfo.appendChild(description);
+    placeInfo.appendChild(createAmenitiesSection(place.amenities));
+    placeInfo.appendChild(createReviewsSection(place.reviews));
+
+    placeDetails.appendChild(header);
+    placeDetails.appendChild(placeInfo);
+
+    document.title =
+        `HBnB - ${title.textContent}`;
+}
+
+/**
+ * Return the host's display name.
+ *
+ * @param {Object} place - Place object.
+ * @returns {string} Host name.
+ */
+function getHostName(place) {
+    const owner = place.owner || place.host;
+
+    if (!owner) {
+        return 'Not provided';
+    }
+
+    if (typeof owner === 'string') {
+        return owner;
+    }
+
+    const fullName = [
+        owner.first_name,
+        owner.last_name
+    ]
+        .filter(Boolean)
+        .join(' ');
+
+    return (
+        fullName ||
+        owner.name ||
+        owner.email ||
+        'Not provided'
+    );
+}
+
+/**
+ * Create the amenities section.
+ *
+ * @param {Array} amenities - Place amenities.
+ * @returns {HTMLElement} Amenities section.
+ */
+function createAmenitiesSection(amenities) {
+    const section = document.createElement('section');
+    const heading = document.createElement('h2');
+    const list = document.createElement('ul');
+
+    section.className = 'dynamic-section';
+    heading.textContent = 'Amenities';
+    list.className = 'amenities-list';
+
+    if (!Array.isArray(amenities) || amenities.length === 0) {
+        const item = document.createElement('li');
+
+        item.textContent = 'No amenities listed.';
+        list.appendChild(item);
+    } else {
+        amenities.forEach((amenity) => {
+            const item = document.createElement('li');
+
+            if (typeof amenity === 'string') {
+                item.textContent = amenity;
+            } else {
+                item.textContent =
+                    amenity.name ||
+                    amenity.title ||
+                    'Unnamed amenity';
+            }
+
+            list.appendChild(item);
+        });
+    }
+
+    section.appendChild(heading);
+    section.appendChild(list);
+
+    return section;
+}
+
+/**
+ * Create the reviews section.
+ *
+ * @param {Array} reviews - Place reviews.
+ * @returns {HTMLElement} Reviews section.
+ */
+function createReviewsSection(reviews) {
+    const section = document.createElement('section');
+    const heading = document.createElement('h2');
+    const reviewsContainer = document.createElement('div');
+
+    section.className = 'reviews-section';
+    heading.textContent = 'Guest Reviews';
+    reviewsContainer.className = 'reviews-list';
+
+    if (!Array.isArray(reviews) || reviews.length === 0) {
+        const emptyMessage = document.createElement('p');
+
+        emptyMessage.className = 'empty-state';
+        emptyMessage.textContent =
+            'This place does not have any reviews yet.';
+
+        reviewsContainer.appendChild(emptyMessage);
+    } else {
+        reviews.forEach((review) => {
+            reviewsContainer.appendChild(createReviewCard(review));
+        });
+    }
+
+    section.appendChild(heading);
+    section.appendChild(reviewsContainer);
+
+    return section;
+}
+
+/**
+ * Create one review card.
+ *
+ * @param {Object} review - Review object.
+ * @returns {HTMLElement} Review card.
+ */
+function createReviewCard(review) {
+    const card = document.createElement('article');
+    const header = document.createElement('header');
+    const userName = document.createElement('h3');
+    const rating = document.createElement('span');
+    const comment = document.createElement('p');
+
+    card.className = 'review-card';
+    header.className = 'review-card-header';
+    rating.className = 'review-rating';
+
+    userName.textContent = getReviewUserName(review);
+    rating.textContent =
+        `Rating: ${review.rating ?? 'Not provided'}/5`;
+
+    comment.textContent =
+        review.text ||
+        review.comment ||
+        review.description ||
+        'No written review was provided.';
+
+    header.appendChild(userName);
+    header.appendChild(rating);
+
+    card.appendChild(header);
+    card.appendChild(comment);
+
+    return card;
+}
+
+/**
+ * Return the review author's name.
+ *
+ * @param {Object} review - Review object.
+ * @returns {string} Review author.
+ */
+function getReviewUserName(review) {
+    const user = review.user;
+
+    if (!user) {
+        return (
+            review.user_name ||
+            review.author ||
+            'Anonymous Guest'
+        );
+    }
+
+    if (typeof user === 'string') {
+        return user;
+    }
+
+    const fullName = [
+        user.first_name,
+        user.last_name
+    ]
+        .filter(Boolean)
+        .join(' ');
+
+    return (
+        fullName ||
+        user.name ||
+        user.email ||
+        'Anonymous Guest'
+    );
+}
+
+/**
+ * Display an error on place.html.
+ *
+ * @param {string} messageText - Error message.
+ */
+function showPlaceError(messageText) {
+    const placeDetails = document.getElementById('place-details');
+    const message = document.getElementById('place-message');
+
+    if (placeDetails) {
+        placeDetails.innerHTML = '';
+    }
+
+    if (message) {
+        message.textContent =
+            messageText || 'Unable to load place details.';
+        message.classList.add('error-message');
     }
 }

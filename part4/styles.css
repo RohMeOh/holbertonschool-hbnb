@@ -569,3 +569,34 @@ main {
         text-align: center;
     }
 }
+
+/* Task 3: Dynamic place details */
+
+#place-details:empty {
+    display: none;
+}
+
+.place-full-description {
+    margin: 20px 0;
+}
+
+.dynamic-section {
+    margin-top: 28px;
+}
+
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.empty-state {
+    padding: 16px;
+    border-radius: 8px;
+    background-color: #f8fafc;
+    color: var(--muted-color);
+    text-align: center;
+}
+
+#add-review[hidden] {
+    display: none;
+}
